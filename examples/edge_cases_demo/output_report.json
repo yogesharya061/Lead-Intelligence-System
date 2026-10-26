@@ -1,0 +1,839 @@
+{
+  "metadata": {
+    "mode": "demo",
+    "as_of": "2024-01-20",
+    "rubric_version": "1.0",
+    "input_file": "leads_testing.csv",
+    "input_sha256": "b16f068ef39586e8bce61ce6041a6e53eab9b97ee75378d72bef574aa5b1db9c",
+    "generated_at": "2026-10-26T08:19:14.117028+00:00",
+    "model": null,
+    "api_calls": 0,
+    "failed_batches": 0,
+    "elapsed_seconds": 0.0004
+  },
+  "stats": {
+    "total_processed": 20,
+    "qualified": 7,
+    "rejected": 6,
+    "review": 7,
+    "qualified_percent": 35.0,
+    "common_rejection_reasons": {
+      "below_minimum_company_size": 4,
+      "interaction_older_than_365_days": 1,
+      "score_below_5": 1
+    },
+    "flag_counts": {
+      "invalid_company_size": 3,
+      "missing_company_size": 3,
+      "invalid_interaction_date": 2,
+      "missing_last_interaction_date": 2,
+      "missing_source": 3,
+      "unmapped_industry": 3,
+      "unmapped_source": 4,
+      "missing_company": 1,
+      "missing_industry": 1
+    }
+  },
+  "priority_queue": [
+    "L0005",
+    "L0011",
+    "L0009",
+    "L0020",
+    "L0017",
+    "L0016",
+    "L0002"
+  ],
+  "flagged_leads": [
+    "L0001",
+    "L0006",
+    "L0007",
+    "L0010",
+    "L0013",
+    "L0014",
+    "L0015"
+  ],
+  "disqualified_leads": [
+    "L0003",
+    "L0004",
+    "L0008",
+    "L0012",
+    "L0018",
+    "L0019"
+  ],
+  "sample_outreach_messages": [
+    {
+      "lead_id": "L0005",
+      "message": "Hi Test_RecentEngagement, I’m reaching out about Hot Lead Corp in SaaS. With a team of 200, your company fits the team size we focus on. FlowPilot is a workflow automation product. Would you like a brief demo focused on a workflow you choose?"
+    },
+    {
+      "lead_id": "L0011",
+      "message": "Hi Test_HighValueMatch, I’m reaching out about Perfect Fit Enterprise in SaaS. With a team of 2000, your company fits the team size we focus on. FlowPilot is a workflow automation product. Would you like a brief demo focused on a workflow you choose?"
+    },
+    {
+      "lead_id": "L0009",
+      "message": "Hi Test_MultipleInteractions, I’m reaching out about Active Company in Finance. With a team of 500, your company fits the team size we focus on. FlowPilot is a workflow automation product. Is there a repetitive team process you would like to review together?"
+    },
+    {
+      "lead_id": "L0020",
+      "message": "Hi Test_SMBAverage, I’m reaching out about Average SMB Co in Retail. With a team of 120, your company fits the team size we focus on. FlowPilot is a workflow automation product. Would you like a brief demo focused on a workflow you choose?"
+    },
+    {
+      "lead_id": "L0017",
+      "message": "Hi Test_MidMarketSoft, I’m reaching out about Mid Market Software in SaaS. With a team of 1500, your company fits the team size we focus on. FlowPilot is a workflow automation product. Would you like a brief demo focused on a workflow you choose?"
+    }
+  ],
+  "leads": [
+    {
+      "lead_id": "L0001",
+      "input_row": 2,
+      "lead": {
+        "name": "Test_MissingSize",
+        "company": "Test Inc",
+        "company_size": "",
+        "industry": "SaaS",
+        "source": "Inbound demo request",
+        "last_interaction_date": "2024-01-20"
+      },
+      "score": 7,
+      "factor_scores": {
+        "company_size": 0,
+        "industry_fit": 3,
+        "engagement_source": 2,
+        "recency": 2
+      },
+      "days_since_interaction": 0,
+      "rule_decision": "review",
+      "decision": "review",
+      "flags": [
+        "invalid_company_size",
+        "missing_company_size"
+      ],
+      "rejection_reasons": [],
+      "reasoning": "company_size=0; industry_fit=3; engagement_source=2; recency=2; missing_company_size; invalid_company_size",
+      "priority": null,
+      "priority_rank": null,
+      "outreach": null,
+      "sequence": [],
+      "llm_status": "not_called_demo",
+      "llm_note": "Offline template; not LLM-generated."
+    },
+    {
+      "lead_id": "L0002",
+      "input_row": 3,
+      "lead": {
+        "name": "Test_VeryLargeEnterprise",
+        "company": "Global Fortune 500 Corp",
+        "company_size": "50000",
+        "industry": "Enterprise Software",
+        "source": "Inbound demo request",
+        "last_interaction_date": "2024-01-20"
+      },
+      "score": 7,
+      "factor_scores": {
+        "company_size": 0,
+        "industry_fit": 3,
+        "engagement_source": 2,
+        "recency": 2
+      },
+      "days_since_interaction": 0,
+      "rule_decision": "qualified",
+      "decision": "qualified",
+      "flags": [],
+      "rejection_reasons": [],
+      "reasoning": "company_size=0; industry_fit=3; engagement_source=2; recency=2",
+      "priority": "medium",
+      "priority_rank": 7,
+      "outreach": "Hi Test_VeryLargeEnterprise, I’m reaching out about Global Fortune 500 Corp in Enterprise Software. With a team of 50000, your company fits the team size we focus on. FlowPilot is a workflow automation product. Would you like a brief demo focused on a workflow you choose?",
+      "sequence": [
+        {
+          "day_offset": 0,
+          "action": "Sales rep reviews and approves first-message draft"
+        },
+        {
+          "day_offset": 3,
+          "action": "If no reply and contact permitted, consider one follow-up"
+        },
+        {
+          "day_offset": 7,
+          "action": "If no reply, close sequence; stop immediately on opt-out/reply"
+        }
+      ],
+      "llm_status": "not_called_demo",
+      "llm_note": "Offline template; not LLM-generated."
+    },
+    {
+      "lead_id": "L0003",
+      "input_row": 4,
+      "lead": {
+        "name": "Test_Solo",
+        "company": "John Doe Consulting",
+        "company_size": "1",
+        "industry": "Consulting",
+        "source": "LinkedIn outreach",
+        "last_interaction_date": "2024-01-20"
+      },
+      "score": 4,
+      "factor_scores": {
+        "company_size": 0,
+        "industry_fit": 2,
+        "engagement_source": 0,
+        "recency": 2
+      },
+      "days_since_interaction": 0,
+      "rule_decision": "rejected",
+      "decision": "rejected",
+      "flags": [],
+      "rejection_reasons": [
+        "below_minimum_company_size"
+      ],
+      "reasoning": "company_size=0; industry_fit=2; engagement_source=0; recency=2; below_minimum_company_size",
+      "priority": null,
+      "priority_rank": null,
+      "outreach": null,
+      "sequence": [],
+      "llm_status": "not_called_demo",
+      "llm_note": "Offline template; not LLM-generated."
+    },
+    {
+      "lead_id": "L0004",
+      "input_row": 5,
+      "lead": {
+        "name": "Test_StaleInteraction",
+        "company": "Old Company Inc",
+        "company_size": "100",
+        "industry": "Manufacturing",
+        "source": "Sales call",
+        "last_interaction_date": "2022-06-15"
+      },
+      "score": 6,
+      "factor_scores": {
+        "company_size": 3,
+        "industry_fit": 2,
+        "engagement_source": 1,
+        "recency": 0
+      },
+      "days_since_interaction": 584,
+      "rule_decision": "rejected",
+      "decision": "rejected",
+      "flags": [],
+      "rejection_reasons": [
+        "interaction_older_than_365_days"
+      ],
+      "reasoning": "company_size=3; industry_fit=2; engagement_source=1; recency=0; interaction_older_than_365_days",
+      "priority": null,
+      "priority_rank": null,
+      "outreach": null,
+      "sequence": [],
+      "llm_status": "not_called_demo",
+      "llm_note": "Offline template; not LLM-generated."
+    },
+    {
+      "lead_id": "L0005",
+      "input_row": 6,
+      "lead": {
+        "name": "Test_RecentEngagement",
+        "company": "Hot Lead Corp",
+        "company_size": "200",
+        "industry": "SaaS",
+        "source": "Inbound demo request",
+        "last_interaction_date": "2024-01-20"
+      },
+      "score": 10,
+      "factor_scores": {
+        "company_size": 3,
+        "industry_fit": 3,
+        "engagement_source": 2,
+        "recency": 2
+      },
+      "days_since_interaction": 0,
+      "rule_decision": "qualified",
+      "decision": "qualified",
+      "flags": [],
+      "rejection_reasons": [],
+      "reasoning": "company_size=3; industry_fit=3; engagement_source=2; recency=2",
+      "priority": "high",
+      "priority_rank": 1,
+      "outreach": "Hi Test_RecentEngagement, I’m reaching out about Hot Lead Corp in SaaS. With a team of 200, your company fits the team size we focus on. FlowPilot is a workflow automation product. Would you like a brief demo focused on a workflow you choose?",
+      "sequence": [
+        {
+          "day_offset": 0,
+          "action": "Sales rep reviews and approves first-message draft"
+        },
+        {
+          "day_offset": 3,
+          "action": "If no reply and contact permitted, consider one follow-up"
+        },
+        {
+          "day_offset": 7,
+          "action": "If no reply, close sequence; stop immediately on opt-out/reply"
+        }
+      ],
+      "llm_status": "not_called_demo",
+      "llm_note": "Offline template; not LLM-generated."
+    },
+    {
+      "lead_id": "L0006",
+      "input_row": 7,
+      "lead": {
+        "name": "Test_MissingDate",
+        "company": "Mystery Co",
+        "company_size": "150",
+        "industry": "Technology",
+        "source": "",
+        "last_interaction_date": ""
+      },
+      "score": 3,
+      "factor_scores": {
+        "company_size": 3,
+        "industry_fit": 0,
+        "engagement_source": 0,
+        "recency": 0
+      },
+      "days_since_interaction": null,
+      "rule_decision": "review",
+      "decision": "review",
+      "flags": [
+        "invalid_interaction_date",
+        "missing_last_interaction_date",
+        "missing_source",
+        "unmapped_industry",
+        "unmapped_source"
+      ],
+      "rejection_reasons": [],
+      "reasoning": "company_size=3; industry_fit=0; engagement_source=0; recency=0; missing_source; missing_last_interaction_date; invalid_interaction_date; unmapped_industry; unmapped_source",
+      "priority": null,
+      "priority_rank": null,
+      "outreach": null,
+      "sequence": [],
+      "llm_status": "not_called_demo",
+      "llm_note": "Offline template; not LLM-generated."
+    },
+    {
+      "lead_id": "L0007",
+      "input_row": 8,
+      "lead": {
+        "name": "Test_UnknownIndustry",
+        "company": "Mysterious Startup",
+        "company_size": "15",
+        "industry": "Unknown Sector",
+        "source": "Referral",
+        "last_interaction_date": "2024-01-19"
+      },
+      "score": 5,
+      "factor_scores": {
+        "company_size": 1,
+        "industry_fit": 0,
+        "engagement_source": 2,
+        "recency": 2
+      },
+      "days_since_interaction": 1,
+      "rule_decision": "review",
+      "decision": "review",
+      "flags": [
+        "unmapped_industry"
+      ],
+      "rejection_reasons": [],
+      "reasoning": "company_size=1; industry_fit=0; engagement_source=2; recency=2; unmapped_industry",
+      "priority": null,
+      "priority_rank": null,
+      "outreach": null,
+      "sequence": [],
+      "llm_status": "not_called_demo",
+      "llm_note": "Offline template; not LLM-generated."
+    },
+    {
+      "lead_id": "L0008",
+      "input_row": 9,
+      "lead": {
+        "name": "Test_VeryRecentSignup",
+        "company": "Brand New Startup",
+        "company_size": "2",
+        "industry": "SaaS",
+        "source": "Inbound demo request",
+        "last_interaction_date": "2024-01-20"
+      },
+      "score": 7,
+      "factor_scores": {
+        "company_size": 0,
+        "industry_fit": 3,
+        "engagement_source": 2,
+        "recency": 2
+      },
+      "days_since_interaction": 0,
+      "rule_decision": "rejected",
+      "decision": "rejected",
+      "flags": [],
+      "rejection_reasons": [
+        "below_minimum_company_size"
+      ],
+      "reasoning": "company_size=0; industry_fit=3; engagement_source=2; recency=2; below_minimum_company_size",
+      "priority": null,
+      "priority_rank": null,
+      "outreach": null,
+      "sequence": [],
+      "llm_status": "not_called_demo",
+      "llm_note": "Offline template; not LLM-generated."
+    },
+    {
+      "lead_id": "L0009",
+      "input_row": 10,
+      "lead": {
+        "name": "Test_MultipleInteractions",
+        "company": "Active Company",
+        "company_size": "500",
+        "industry": "Finance",
+        "source": "Inbound demo request",
+        "last_interaction_date": "2024-01-20"
+      },
+      "score": 9,
+      "factor_scores": {
+        "company_size": 3,
+        "industry_fit": 2,
+        "engagement_source": 2,
+        "recency": 2
+      },
+      "days_since_interaction": 0,
+      "rule_decision": "qualified",
+      "decision": "qualified",
+      "flags": [],
+      "rejection_reasons": [],
+      "reasoning": "company_size=3; industry_fit=2; engagement_source=2; recency=2",
+      "priority": "high",
+      "priority_rank": 3,
+      "outreach": "Hi Test_MultipleInteractions, I’m reaching out about Active Company in Finance. With a team of 500, your company fits the team size we focus on. FlowPilot is a workflow automation product. Is there a repetitive team process you would like to review together?",
+      "sequence": [
+        {
+          "day_offset": 0,
+          "action": "Sales rep reviews and approves first-message draft"
+        },
+        {
+          "day_offset": 3,
+          "action": "If no reply and contact permitted, consider one follow-up"
+        },
+        {
+          "day_offset": 7,
+          "action": "If no reply, close sequence; stop immediately on opt-out/reply"
+        }
+      ],
+      "llm_status": "not_called_demo",
+      "llm_note": "Offline template; not LLM-generated."
+    },
+    {
+      "lead_id": "L0010",
+      "input_row": 11,
+      "lead": {
+        "name": "Test_NoSourceInfo",
+        "company": "Source Unknown Corp",
+        "company_size": "300",
+        "industry": "Retail",
+        "source": "Unknown Source",
+        "last_interaction_date": "2024-01-18"
+      },
+      "score": 7,
+      "factor_scores": {
+        "company_size": 3,
+        "industry_fit": 2,
+        "engagement_source": 0,
+        "recency": 2
+      },
+      "days_since_interaction": 2,
+      "rule_decision": "review",
+      "decision": "review",
+      "flags": [
+        "unmapped_source"
+      ],
+      "rejection_reasons": [],
+      "reasoning": "company_size=3; industry_fit=2; engagement_source=0; recency=2; unmapped_source",
+      "priority": null,
+      "priority_rank": null,
+      "outreach": null,
+      "sequence": [],
+      "llm_status": "not_called_demo",
+      "llm_note": "Offline template; not LLM-generated."
+    },
+    {
+      "lead_id": "L0011",
+      "input_row": 12,
+      "lead": {
+        "name": "Test_HighValueMatch",
+        "company": "Perfect Fit Enterprise",
+        "company_size": "2000",
+        "industry": "SaaS",
+        "source": "Inbound demo request",
+        "last_interaction_date": "2024-01-20"
+      },
+      "score": 10,
+      "factor_scores": {
+        "company_size": 3,
+        "industry_fit": 3,
+        "engagement_source": 2,
+        "recency": 2
+      },
+      "days_since_interaction": 0,
+      "rule_decision": "qualified",
+      "decision": "qualified",
+      "flags": [],
+      "rejection_reasons": [],
+      "reasoning": "company_size=3; industry_fit=3; engagement_source=2; recency=2",
+      "priority": "high",
+      "priority_rank": 2,
+      "outreach": "Hi Test_HighValueMatch, I’m reaching out about Perfect Fit Enterprise in SaaS. With a team of 2000, your company fits the team size we focus on. FlowPilot is a workflow automation product. Would you like a brief demo focused on a workflow you choose?",
+      "sequence": [
+        {
+          "day_offset": 0,
+          "action": "Sales rep reviews and approves first-message draft"
+        },
+        {
+          "day_offset": 3,
+          "action": "If no reply and contact permitted, consider one follow-up"
+        },
+        {
+          "day_offset": 7,
+          "action": "If no reply, close sequence; stop immediately on opt-out/reply"
+        }
+      ],
+      "llm_status": "not_called_demo",
+      "llm_note": "Offline template; not LLM-generated."
+    },
+    {
+      "lead_id": "L0012",
+      "input_row": 13,
+      "lead": {
+        "name": "Test_LowValueNiche",
+        "company": "Niche Small Op",
+        "company_size": "5",
+        "industry": "Agriculture",
+        "source": "LinkedIn outreach",
+        "last_interaction_date": "2024-01-15"
+      },
+      "score": 2,
+      "factor_scores": {
+        "company_size": 0,
+        "industry_fit": 0,
+        "engagement_source": 0,
+        "recency": 2
+      },
+      "days_since_interaction": 5,
+      "rule_decision": "rejected",
+      "decision": "rejected",
+      "flags": [],
+      "rejection_reasons": [
+        "below_minimum_company_size"
+      ],
+      "reasoning": "company_size=0; industry_fit=0; engagement_source=0; recency=2; below_minimum_company_size",
+      "priority": null,
+      "priority_rank": null,
+      "outreach": null,
+      "sequence": [],
+      "llm_status": "not_called_demo",
+      "llm_note": "Offline template; not LLM-generated."
+    },
+    {
+      "lead_id": "L0013",
+      "input_row": 14,
+      "lead": {
+        "name": "Test_MissingName",
+        "company": "",
+        "company_size": "400",
+        "industry": "Consulting",
+        "source": "Sales call",
+        "last_interaction_date": "2024-01-19"
+      },
+      "score": 8,
+      "factor_scores": {
+        "company_size": 3,
+        "industry_fit": 2,
+        "engagement_source": 1,
+        "recency": 2
+      },
+      "days_since_interaction": 1,
+      "rule_decision": "review",
+      "decision": "review",
+      "flags": [
+        "missing_company"
+      ],
+      "rejection_reasons": [],
+      "reasoning": "company_size=3; industry_fit=2; engagement_source=1; recency=2; missing_company",
+      "priority": null,
+      "priority_rank": null,
+      "outreach": null,
+      "sequence": [],
+      "llm_status": "not_called_demo",
+      "llm_note": "Offline template; not LLM-generated."
+    },
+    {
+      "lead_id": "L0014",
+      "input_row": 15,
+      "lead": {
+        "name": "Test_NameOnly",
+        "company": "James Wilson",
+        "company_size": "",
+        "industry": "",
+        "source": "",
+        "last_interaction_date": ""
+      },
+      "score": 1,
+      "factor_scores": {
+        "company_size": 0,
+        "industry_fit": 0,
+        "engagement_source": 0,
+        "recency": 0
+      },
+      "days_since_interaction": null,
+      "rule_decision": "review",
+      "decision": "review",
+      "flags": [
+        "invalid_company_size",
+        "invalid_interaction_date",
+        "missing_company_size",
+        "missing_industry",
+        "missing_last_interaction_date",
+        "missing_source",
+        "unmapped_industry",
+        "unmapped_source"
+      ],
+      "rejection_reasons": [],
+      "reasoning": "company_size=0; industry_fit=0; engagement_source=0; recency=0; missing_company_size; missing_industry; missing_source; missing_last_interaction_date; invalid_company_size; invalid_interaction_date; unmapped_industry; unmapped_source",
+      "priority": null,
+      "priority_rank": null,
+      "outreach": null,
+      "sequence": [],
+      "llm_status": "not_called_demo",
+      "llm_note": "Offline template; not LLM-generated."
+    },
+    {
+      "lead_id": "L0015",
+      "input_row": 16,
+      "lead": {
+        "name": "Test_PartialData",
+        "company": "Tech Partial",
+        "company_size": "",
+        "industry": "SaaS",
+        "source": "",
+        "last_interaction_date": "2024-01-20"
+      },
+      "score": 5,
+      "factor_scores": {
+        "company_size": 0,
+        "industry_fit": 3,
+        "engagement_source": 0,
+        "recency": 2
+      },
+      "days_since_interaction": 0,
+      "rule_decision": "review",
+      "decision": "review",
+      "flags": [
+        "invalid_company_size",
+        "missing_company_size",
+        "missing_source",
+        "unmapped_source"
+      ],
+      "rejection_reasons": [],
+      "reasoning": "company_size=0; industry_fit=3; engagement_source=0; recency=2; missing_company_size; missing_source; invalid_company_size; unmapped_source",
+      "priority": null,
+      "priority_rank": null,
+      "outreach": null,
+      "sequence": [],
+      "llm_status": "not_called_demo",
+      "llm_note": "Offline template; not LLM-generated."
+    },
+    {
+      "lead_id": "L0016",
+      "input_row": 17,
+      "lead": {
+        "name": "Test_WeekOldInteraction",
+        "company": "Week Old Corp",
+        "company_size": "250",
+        "industry": "Logistics",
+        "source": "Webinar attendee",
+        "last_interaction_date": "2024-01-13"
+      },
+      "score": 8,
+      "factor_scores": {
+        "company_size": 3,
+        "industry_fit": 2,
+        "engagement_source": 1,
+        "recency": 2
+      },
+      "days_since_interaction": 7,
+      "rule_decision": "qualified",
+      "decision": "qualified",
+      "flags": [],
+      "rejection_reasons": [],
+      "reasoning": "company_size=3; industry_fit=2; engagement_source=1; recency=2",
+      "priority": "medium",
+      "priority_rank": 6,
+      "outreach": "Hi Test_WeekOldInteraction, I’m reaching out about Week Old Corp in Logistics. With a team of 250, your company fits the team size we focus on. FlowPilot is a workflow automation product. Would a short workflow discovery conversation be useful?",
+      "sequence": [
+        {
+          "day_offset": 0,
+          "action": "Sales rep reviews and approves first-message draft"
+        },
+        {
+          "day_offset": 3,
+          "action": "If no reply and contact permitted, consider one follow-up"
+        },
+        {
+          "day_offset": 7,
+          "action": "If no reply, close sequence; stop immediately on opt-out/reply"
+        }
+      ],
+      "llm_status": "not_called_demo",
+      "llm_note": "Offline template; not LLM-generated."
+    },
+    {
+      "lead_id": "L0017",
+      "input_row": 18,
+      "lead": {
+        "name": "Test_MidMarketSoft",
+        "company": "Mid Market Software",
+        "company_size": "1500",
+        "industry": "SaaS",
+        "source": "Content download",
+        "last_interaction_date": "2024-01-18"
+      },
+      "score": 8,
+      "factor_scores": {
+        "company_size": 3,
+        "industry_fit": 3,
+        "engagement_source": 0,
+        "recency": 2
+      },
+      "days_since_interaction": 2,
+      "rule_decision": "qualified",
+      "decision": "qualified",
+      "flags": [],
+      "rejection_reasons": [],
+      "reasoning": "company_size=3; industry_fit=3; engagement_source=0; recency=2",
+      "priority": "medium",
+      "priority_rank": 5,
+      "outreach": "Hi Test_MidMarketSoft, I’m reaching out about Mid Market Software in SaaS. With a team of 1500, your company fits the team size we focus on. FlowPilot is a workflow automation product. Would you like a brief demo focused on a workflow you choose?",
+      "sequence": [
+        {
+          "day_offset": 0,
+          "action": "Sales rep reviews and approves first-message draft"
+        },
+        {
+          "day_offset": 3,
+          "action": "If no reply and contact permitted, consider one follow-up"
+        },
+        {
+          "day_offset": 7,
+          "action": "If no reply, close sequence; stop immediately on opt-out/reply"
+        }
+      ],
+      "llm_status": "not_called_demo",
+      "llm_note": "Offline template; not LLM-generated."
+    },
+    {
+      "lead_id": "L0018",
+      "input_row": 19,
+      "lead": {
+        "name": "Test_StartupShutdown",
+        "company": "Failed Startup",
+        "company_size": "8",
+        "industry": "SaaS",
+        "source": "Referral",
+        "last_interaction_date": "2023-05-01"
+      },
+      "score": 5,
+      "factor_scores": {
+        "company_size": 0,
+        "industry_fit": 3,
+        "engagement_source": 2,
+        "recency": 0
+      },
+      "days_since_interaction": 264,
+      "rule_decision": "rejected",
+      "decision": "rejected",
+      "flags": [],
+      "rejection_reasons": [
+        "below_minimum_company_size"
+      ],
+      "reasoning": "company_size=0; industry_fit=3; engagement_source=2; recency=0; below_minimum_company_size",
+      "priority": null,
+      "priority_rank": null,
+      "outreach": null,
+      "sequence": [],
+      "llm_status": "not_called_demo",
+      "llm_note": "Offline template; not LLM-generated."
+    },
+    {
+      "lead_id": "L0019",
+      "input_row": 20,
+      "lead": {
+        "name": "Test_GovernmentBuyer",
+        "company": "Government Tech",
+        "company_size": "3000",
+        "industry": "Government",
+        "source": "Sales call",
+        "last_interaction_date": "2024-01-17"
+      },
+      "score": 4,
+      "factor_scores": {
+        "company_size": 1,
+        "industry_fit": 0,
+        "engagement_source": 1,
+        "recency": 2
+      },
+      "days_since_interaction": 3,
+      "rule_decision": "rejected",
+      "decision": "rejected",
+      "flags": [],
+      "rejection_reasons": [
+        "score_below_5"
+      ],
+      "reasoning": "company_size=1; industry_fit=0; engagement_source=1; recency=2; score_below_5",
+      "priority": null,
+      "priority_rank": null,
+      "outreach": null,
+      "sequence": [],
+      "llm_status": "not_called_demo",
+      "llm_note": "Offline template; not LLM-generated."
+    },
+    {
+      "lead_id": "L0020",
+      "input_row": 21,
+      "lead": {
+        "name": "Test_SMBAverage",
+        "company": "Average SMB Co",
+        "company_size": "120",
+        "industry": "Retail",
+        "source": "Inbound demo request",
+        "last_interaction_date": "2024-01-19"
+      },
+      "score": 9,
+      "factor_scores": {
+        "company_size": 3,
+        "industry_fit": 2,
+        "engagement_source": 2,
+        "recency": 2
+      },
+      "days_since_interaction": 1,
+      "rule_decision": "qualified",
+      "decision": "qualified",
+      "flags": [],
+      "rejection_reasons": [],
+      "reasoning": "company_size=3; industry_fit=2; engagement_source=2; recency=2",
+      "priority": "high",
+      "priority_rank": 4,
+      "outreach": "Hi Test_SMBAverage, I’m reaching out about Average SMB Co in Retail. With a team of 120, your company fits the team size we focus on. FlowPilot is a workflow automation product. Would you like a brief demo focused on a workflow you choose?",
+      "sequence": [
+        {
+          "day_offset": 0,
+          "action": "Sales rep reviews and approves first-message draft"
+        },
+        {
+          "day_offset": 3,
+          "action": "If no reply and contact permitted, consider one follow-up"
+        },
+        {
+          "day_offset": 7,
+          "action": "If no reply, close sequence; stop immediately on opt-out/reply"
+        }
+      ],
+      "llm_status": "not_called_demo",
+      "llm_note": "Offline template; not LLM-generated."
+    }
+  ]
+}
