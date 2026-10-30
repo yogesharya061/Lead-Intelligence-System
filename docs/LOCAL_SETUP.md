@@ -64,6 +64,8 @@ Check `metadata.mode=live`, `failed_batches=0`, and each record's `llm_status=su
 
 Each command makes new API calls and may incur usage charges. Testing data is expected to produce review/rejection decisions; these are not software failures. For new current leads, omit `--as-of` to use today. The 2024 demo date exists only because the supplied data is historical.
 
+Live mode pauses 15 seconds between batches. Within each batch, `LLMClient.analyze` allows up to three total attempts for HTTP 408, 429, 500, 502, 503 or 504 responses, transport failures, malformed/truncated JSON, or local response-validation failures. It honors `Retry-After` for HTTP retries and otherwise uses exponential backoff with jitter. Validation failures add corrective feedback to the retry; they do not weaken the acceptance checks. HTTP 400 and other permanent HTTP errors are not retried. Retry attempts resubmit the entire batch and may incur extra usage. In the report, `metadata.api_calls` counts attempts and `metadata.failed_batches` counts batches that ultimately failed.
+
 ## 6. Read the sales report
 
 - `stats`: processed count, qualified/rejected/review counts, qualified percentage, rejection reasons and flag counts.
@@ -74,7 +76,7 @@ Each command makes new API calls and may incur usage charges. Testing data is ex
 - `outreach`, `sequence`: first-message draft and suggested relative follow-up actions; never automatic sends.
 - `metadata`: mode, model, input hash, as-of date, elapsed seconds, API call count and failed batches.
 
-JSON is the full-fidelity report. CSV is a flat sales worksheet; cells beginning with formula markers are prefixed with an apostrophe for safer spreadsheet viewing. Qualified percentage is a rubric output, not conversion prediction or accuracy.
+JSON is the full-fidelity report. `input_sha256` fingerprints the exact input-file bytes, so converting line endings between Windows and Unix can change the hash without changing parsed lead records. CSV is a flat sales worksheet; cells beginning with formula markers are prefixed with an apostrophe for safer spreadsheet viewing. Qualified percentage is a rubric output, not conversion prediction or accuracy.
 
 ## 7. Demonstrate and submit
 
@@ -97,7 +99,7 @@ Add `output/full_scale/output_report.json` and `leads_report.csv` to that ZIP th
 | HTTP 401/403 | Verify key/account permissions; permanent errors do not retry within a batch |
 | HTTP 400/404 | Check model availability and JSON-mode support; use `--model MODEL_ID` |
 | HTTP 429 | Bounded retries honor Retry-After; wait for account quota reset if exhausted |
-| Invalid API response | Review flags preserve all rows; retry with a smaller batch (minimum 2) or another supported model |
+| Invalid API response | Review flags preserve all rows; inspect `llm_note`; reduce batch size (minimum 2) or use another supported model |
 | Exit code 2 | Reports exist but at least one batch failed; fix the cause and rerun before submitting |
 | Most leads stale/rejected | Use `--as-of 2024-01-20` for this historical assignment data |
 | CSV missing columns | Preserve the six exact header names; inspect extra delimiters or malformed rows |

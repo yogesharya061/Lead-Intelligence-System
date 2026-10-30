@@ -1,4 +1,3 @@
-"""Run from repository root: python main.py --help."""
 import argparse
 from datetime import date
 import json
@@ -17,8 +16,10 @@ def main():
     parser.add_argument('--batch-size', type=int, default=10)
     parser.add_argument('--model', default=os.getenv('GROQ_MODEL', 'openai/gpt-oss-20b'))
     args = parser.parse_args()
+
     logging.basicConfig(level=logging.INFO, format='%(levelname)s %(message)s')
     client = None
+
     if args.mode == 'live':
         key = os.getenv('GROQ_API_KEY', '').strip()
         if not key:
@@ -29,8 +30,10 @@ def main():
         write_reports(report, args.output)
     except (ValueError, OSError) as exc:
         parser.exit(1, f'Input/output error: {exc}\n')
+
     print(json.dumps(report['stats'], indent=2))
     print(f'Reports written to {args.output}; mode={args.mode}')
+
     return 2 if report['metadata']['failed_batches'] else 0
 
 

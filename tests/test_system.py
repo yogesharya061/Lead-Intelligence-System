@@ -9,7 +9,7 @@ import unittest
 from unittest.mock import patch
 from urllib.error import HTTPError, URLError
 from lead_intelligence.scoring import score_lead
-from lead_intelligence.llm import LLMClient, LLMError, validate_response
+from lead_intelligence.llm import LLMClient, LLMError, RESPONSE_FORMAT, validate_response
 from lead_intelligence.pipeline import run, batches, demo_message, write_reports, load_leads, safe_cell
 
 AS_OF = date(2024, 1, 20)
@@ -77,18 +77,23 @@ class SystemTests(unittest.TestCase):
 
     def test_live_mock_batches(self):
         client = FakeClient()
-        result = run('data/leads_full_scale_100.csv', AS_OF, 'live', 10, client)
+        with patch('lead_intelligence.pipeline.sleep') as sleep:
+            result = run('data/leads_full_scale_100.csv', AS_OF, 'live', 10, client)
         self.assertEqual(client.calls, 10)
         self.assertEqual(len(result['sample_outreach_messages']), 5)
         self.assertTrue(all(r['llm_status'] == 'success' for r in result['leads']))
+        self.assertEqual(sleep.call_count, 9)
+        sleep.assert_called_with(15)
 
     def test_failure_routes_to_review(self):
         client = FakeClient()
-        with patch.object(client, 'analyze', side_effect=LLMError('offline')):
+        with patch.object(client, 'analyze', side_effect=LLMError('offline')), \
+                patch('lead_intelligence.pipeline.sleep') as sleep:
             result = run('data/leads_testing.csv', AS_OF, 'live', 10, client)
         self.assertEqual(result['stats']['review'], 20)
         self.assertEqual(result['metadata']['failed_batches'], 2)
         self.assertFalse(result['priority_queue'])
+        sleep.assert_called_once_with(15)
 
     def test_response_contract(self):
         batch = [scored()]
@@ -97,6 +102,43 @@ class SystemTests(unittest.TestCase):
         for bad in [{}, {'leads': []}, {'leads': good['leads'] * 2}, {'leads': [{**good['leads'][0], 'needs_review': 'false'}]}, {'leads': [{**good['leads'][0], 'message': 'Generic hello'}]}]:
             with self.assertRaises(ValueError):
                 validate_response(bad, batch)
+
+    def test_validation_error_identifies_personalization_failure(self):
+        batch = [scored()]
+        bad = payload(batch)
+        bad['leads'][0]['message'] = 'A short message.'
+        with self.assertRaisesRegex(ValueError, 'L0001 has 3 words; expected 20-120'):
+            validate_response(bad, batch)
+
+    def test_validation_retry_includes_correction_feedback(self):
+        batch = [scored()]
+        invalid = payload(batch)
+        invalid['leads'][0]['message'] = 'A short message.'
+        responses = [
+            io.BytesIO(json.dumps({
+                'choices': [{'message': {'content': json.dumps(invalid)}}]
+            }).encode()),
+            io.BytesIO(json.dumps({
+                'choices': [{'message': {'content': json.dumps(payload(batch))}}]
+            }).encode())
+        ]
+        requests = []
+
+        def capture_request(request, **kwargs):
+            self.assertEqual(kwargs, {'timeout': 60})
+            requests.append(json.loads(request.data.decode()))
+            return responses.pop(0)
+
+        client = LLMClient('fake', 'fake', attempts=2)
+        with patch('lead_intelligence.llm.urlopen', side_effect=capture_request), \
+                patch('lead_intelligence.llm.time.sleep'):
+            self.assertIn('L0001', client.analyze(batch))
+
+        self.assertEqual(len(requests), 2)
+        self.assertIn(
+            'Message for L0001 has 3 words; expected 20-120',
+            requests[1]['messages'][-1]['content']
+        )
 
     def test_http_retry(self):
         batch = [scored()]
@@ -109,6 +151,53 @@ class SystemTests(unittest.TestCase):
             self.assertIn('L0001', client.analyze(batch))
         self.assertEqual(client.calls, 2)
         sleep.assert_called_once_with(0)
+
+    def test_request_uses_json_mode_with_output_budget(self):
+        batch = [scored()]
+        response = io.BytesIO(json.dumps({
+            'choices': [{'message': {'content': json.dumps(payload(batch))}}]
+        }).encode())
+        requests = []
+
+        def capture_request(request, **kwargs):
+            self.assertEqual(kwargs, {'timeout': 60})
+            requests.append(json.loads(request.data.decode()))
+            return response
+
+        client = LLMClient('fake', 'fake')
+        with patch('lead_intelligence.llm.urlopen', side_effect=capture_request):
+            client.analyze(batch)
+
+        self.assertEqual(requests[0]['response_format'], RESPONSE_FORMAT)
+        self.assertEqual(requests[0]['response_format']['type'], 'json_object')
+        self.assertEqual(requests[0]['max_completion_tokens'], 4096)
+        self.assertEqual(requests[0]['reasoning_effort'], 'low')
+
+    def test_rate_limit_error_includes_provider_detail(self):
+        body = io.BytesIO(json.dumps({
+            'error': {'message': 'Request quota exceeded', 'code': 'rate_limit_exceeded'}
+        }).encode())
+        error = HTTPError('https://example.test', 429, 'limited', Message(), body)
+        client = LLMClient('fake', 'fake', attempts=1)
+
+        with patch('lead_intelligence.llm.urlopen', side_effect=error):
+            with self.assertRaisesRegex(
+                LLMError, 'rate_limit_exceeded: Request quota exceeded'
+            ):
+                client.analyze([scored()])
+
+    def test_truncated_response_is_reported(self):
+        response = io.BytesIO(json.dumps({
+            'choices': [{
+                'finish_reason': 'length',
+                'message': {'content': '{"leads":'}
+            }]
+        }).encode())
+        client = LLMClient('fake', 'fake', attempts=1)
+
+        with patch('lead_intelligence.llm.urlopen', return_value=response):
+            with self.assertRaisesRegex(LLMError, 'Response truncated at provider token limit'):
+                client.analyze([scored()])
 
     def test_auth_not_retried(self):
         error = HTTPError('https://example.test', 401, 'auth', Message(), None)
@@ -127,7 +216,8 @@ class SystemTests(unittest.TestCase):
 
     def test_bad_json_retries(self):
         client = LLMClient('fake', 'fake', attempts=2)
-        with patch('lead_intelligence.llm.urlopen', side_effect=lambda *a, **k: io.BytesIO(b'not json')), patch('lead_intelligence.llm.time.sleep'):
+        invalid_responses = [io.BytesIO(b'not json') for _ in range(2)]
+        with patch('lead_intelligence.llm.urlopen', side_effect=invalid_responses), patch('lead_intelligence.llm.time.sleep'):
             with self.assertRaises(LLMError):
                 client.analyze([scored()])
         self.assertEqual(client.calls, 2)

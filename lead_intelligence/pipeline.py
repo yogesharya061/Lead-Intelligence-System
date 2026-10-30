@@ -6,7 +6,7 @@ import logging
 from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
-from time import perf_counter
+from time import perf_counter, sleep
 from .scoring import FIELDS, score_lead
 from .llm import LLMError
 
@@ -64,7 +64,11 @@ def run(input_path, as_of, mode='demo', batch_size=10, client=None):
             row['rejection_reasons'] = []
         seen.add(identity)
     failed_batches = 0
-    for batch in batches(rows, batch_size):
+    for batch_number, batch in enumerate(batches(rows, batch_size), start=1):
+        if mode == "live" and batch_number > 1:
+            logging.info("Waiting 15 seconds before batch %d", batch_number)
+            sleep(15)
+
         if mode == 'demo':
             for row in batch:
                 row['llm_status'] = 'not_called_demo'

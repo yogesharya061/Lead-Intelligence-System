@@ -27,7 +27,7 @@ Qualified leads rank by descending score, then shortest age, then stable input I
 
 ## Architecture
 
-CSV intake → normalize/validate → deterministic score → batches of 10 → LLM evidence review + qualified draft → response validation → rank → JSON/CSV.
+CSV intake → normalize/validate → deterministic score → batches of 10 (custom) → LLM evidence review + qualified draft → response validation → rank → JSON/CSV.
 
 - `scoring.py`: business policy and field validation.
 - `llm.py`: prompt, Groq HTTP integration, output contract, bounded retries.
@@ -37,7 +37,9 @@ CSV intake → normalize/validate → deterministic score → batches of 10 → 
 
 Use 2–20 records per batch; a final singleton joins the previous batch (maximum 21). One-record files fail rather than making a one-lead API call. For 100 leads/default size, 10 initial calls; retries add calls. API payload contains lead data and rubric results, never local paths or secrets. Validated output must cover every ID exactly once, contain boolean review flags, and provide bounded personalized messages for qualified leads. A model cannot return outreach for review/rejected records. Invalid batches retry as a unit, then go to review.
 
-HTTP 408/429/5xx and transport failures retry up to three attempts, exponential backoff with jitter, honoring Retry-After. Waits beyond 120 seconds fail the batch for later rerun. Authentication/other permanent HTTP errors do not retry within the batch. Logs contain counts/status, not API keys or payloads. Each output file uses atomic replacement, but the two-file report is not a transactional bundle. Do not run concurrent processes into the same output directory.
+The Groq request uses JSON Object Mode, a bounded 4096-token completion budget and low reasoning effort. The application still parses and validates the returned JSON structure, IDs, and outreach rules locally before applying any LLM result. Validation failures identify the affected lead and constraint, and the next retry includes that correction without relaxing validation. Provider rate-limit details are retained in batch errors to distinguish temporary limits from exhausted quota.
+
+`LLMClient.analyze` retries a batch up to three total attempts when the provider returns HTTP 408, 429, 500, 502, 503 or 504, a network/timeout error occurs, JSON cannot be parsed, a response is truncated, or local response validation fails. Transient failures use exponential backoff with jitter; HTTP retries honor `Retry-After`. A validation or JSON failure adds a correction to the next request, but the validator's requirements are never relaxed. Delays over 120 seconds stop retrying. HTTP 400 and other permanent HTTP errors fail immediately. Retries resubmit the whole batch and can incur additional API usage; `metadata.api_calls` counts attempts, while `metadata.failed_batches` counts batches that exhausted/finally failed. A failed batch is routed to review. Live runs also wait 15 seconds between batches to pace requests; this is separate from retry backoff. Logs contain counts/status, not API keys or payloads. Each output file uses atomic replacement, but the two-file report is not a transactional bundle. Do not run concurrent processes into the same output directory.
 
 ## Outreach and human loop
 
@@ -65,5 +67,3 @@ Original CSV files are byte-preserved in `data/`. The supplied instruction docum
 ## Validation limits
 
 Included outputs are generated in offline demo mode. API calls, malformed responses, retries and failures are simulated in automated tests. No live LLM output or live latency/cost has been measured in this environment. For assignment submission, run the five-lead live prompt check, review it, then run 100 live leads and include that report. Do not submit an offline report as an LLM-generated result.
-
-Provider references used for the adapter: [Groq API reference](https://console.groq.com/docs/api-reference), [rate limits](https://console.groq.com/docs/rate-limits), [JSON response formats](https://console.groq.com/docs/structured-outputs). Model and account limits can change; configure `--model` or `GROQ_MODEL`.
